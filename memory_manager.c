@@ -33,20 +33,7 @@ void mem_init(size_t size) {
     free_list->free = 1;     //the block is marked as free (free = 1) and ready for future allocations
     free_list->next = NULL;
 }
-med fler felsökningsutskrifter och noggrannare hantering av total_allocated:
 
-c
-Kopiera kod
-#include <stdio.h>
-#include <stdlib.h>
-
-#define POOL_SIZE 1024  // Exempelstorlek, anpassa efter din implementation
-
-typedef struct Block {
-    size_t size;
-    int free;
-    struct Block* next;
-} Block;
 
 // minnesallokering
 void* mem_alloc(size_t size) {
