@@ -35,20 +35,15 @@ void mem_init(size_t size) {
 }
 
 
-// minnesallokering
 void* mem_alloc(size_t size) {
-    // Kontrollera om vi kan allokera minne
     if (size == 0 || size + sizeof(Block) > POOL_SIZE - total_allocated) {
-        fprintf(stderr, "Allocation failed: size=%zu, total_allocated=%zu, POOL_SIZE=%zu\n", size, total_allocated, POOL_SIZE);
         return NULL;
     }
 
     Block* current = free_list;
 
     while (current) {
-        // Kontrollera om blocket är ledigt och tillräckligt stort
         if (current->free && current->size >= size) {
-            // Om blocket kan delas
             if (current->size >= size + sizeof(Block) + 1) {
                 Block* new_block = (Block*)((char*)current + sizeof(Block) + size);
                 new_block->size = current->size - size - sizeof(Block);
@@ -58,27 +53,18 @@ void* mem_alloc(size_t size) {
                 current->size = size;
                 current->free = 0;
                 current->next = new_block;
-
-                total_allocated += size + sizeof(Block);  // Uppdatera allokerad storlek
-                fprintf(stderr, "Allocated block: size=%zu, total_allocated=%zu\n", size, total_allocated);
-                return (char*)current + sizeof(Block);
             } else {
-                // Markera blocket som upptaget om det inte kan delas
                 current->free = 0;
-                total_allocated += current->size + sizeof(Block);  // Lägg till hela blocket
-                fprintf(stderr, "Allocated block without split: size=%zu, total_allocated=%zu\n", current->size, total_allocated);
-                return (char*)current + sizeof(Block);
             }
+
+            total_allocated += size + sizeof(Block); 
+            return (char*)current + sizeof(Block);
         }
         current = current->next;
     }
-
-    // Inget passande block hittades
-    fprintf(stderr, "No suitable block found for allocation\n");
     return NULL;
 }
 
-// minnesfrigöring
 void mem_free(void* block) {
     if (block == NULL) return;
 
@@ -91,16 +77,12 @@ void mem_free(void* block) {
 
     current->free = 1;
 
-    // Justera total allokerad storlek
-    total_allocated -= current->size + sizeof(Block);
-    fprintf(stderr, "Freed block: size=%zu, total_allocated=%zu\n", current->size, total_allocated);
+    total_allocated -= current->size + sizeof(Block); 
 
-    // Kolla om vi kan slå ihop med nästa block
     Block* next = current->next;
     if (next && next->free) {
         current->size += sizeof(Block) + next->size;
         current->next = next->next;
-        fprintf(stderr, "Merged with next block: new size=%zu\n", current->size);
     }
 }
 
