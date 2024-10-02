@@ -33,22 +33,38 @@ void mem_init(size_t size) {
     free_list->free = 1;     //the block is marked as free (free = 1) and ready for future allocations
     free_list->next = NULL;
 }
+med fler felsökningsutskrifter och noggrannare hantering av total_allocated:
 
-/*Allocates a memory block of the requested size from the static memory pool.Traverses the linked list of free blocks to find a large enough block. 
-Splits the block if it is larger than the requested size. 
-Returns a pointer to the allocated block, or NULL if no large enough block exists.*/
+c
+Kopiera kod
+#include <stdio.h>
+#include <stdlib.h>
+
+#define POOL_SIZE 1024  // Exempelstorlek, anpassa efter din implementation
+
+typedef struct Block {
+    size_t size;
+    int free;
+    struct Block* next;
+} Block;
+
+static size_t total_allocated = 0;  // Spårar hur mycket minne som är allokerat
+static Block* free_list = NULL;     // Länkad lista för tillgängliga block
+
+// minnesallokering
 void* mem_alloc(size_t size) {
-    // Kontrollera att storleken är giltig och inte överskrider tillgängligt minne
+    // Kontrollera om vi kan allokera minne
     if (size == 0 || size + sizeof(Block) > POOL_SIZE - total_allocated) {
+        fprintf(stderr, "Allocation failed: size=%zu, total_allocated=%zu, POOL_SIZE=%zu\n", size, total_allocated, POOL_SIZE);
         return NULL;
     }
 
     Block* current = free_list;
 
     while (current) {
-        // Kontrollera att blocket är ledigt och tillräckligt stort för allokeringen
+        // Kontrollera om blocket är ledigt och tillräckligt stort
         if (current->free && current->size >= size) {
-            // Kontrollera om blocket är tillräckligt stort för att delas upp
+            // Om blocket kan delas
             if (current->size >= size + sizeof(Block) + 1) {
                 Block* new_block = (Block*)((char*)current + sizeof(Block) + size);
                 new_block->size = current->size - size - sizeof(Block);
@@ -58,30 +74,27 @@ void* mem_alloc(size_t size) {
                 current->size = size;
                 current->free = 0;
                 current->next = new_block;
+
+                total_allocated += size + sizeof(Block);  // Uppdatera allokerad storlek
+                fprintf(stderr, "Allocated block: size=%zu, total_allocated=%zu\n", size, total_allocated);
+                return (char*)current + sizeof(Block);
             } else {
-                // Om blocket inte kan delas, markera det som upptaget
+                // Markera blocket som upptaget om det inte kan delas
                 current->free = 0;
+                total_allocated += current->size + sizeof(Block);  // Lägg till hela blocket
+                fprintf(stderr, "Allocated block without split: size=%zu, total_allocated=%zu\n", current->size, total_allocated);
+                return (char*)current + sizeof(Block);
             }
-
-            // Uppdatera total allokerad storlek
-            total_allocated += size + sizeof(Block);
-            // Kontrollera om vi har överskridit POOL_SIZE, vilket inte borde ske
-            if (total_allocated > POOL_SIZE) {
-                fprintf(stderr, "Error: Allocated memory exceeds pool size.\n");
-                return NULL;
-            }
-
-            // Returnera pekare till det allokerade utrymmet
-            return (char*)current + sizeof(Block);
         }
-        // Gå vidare till nästa block
         current = current->next;
     }
-    // Ingen passande block hittades
+
+    // Inget passande block hittades
+    fprintf(stderr, "No suitable block found for allocation\n");
     return NULL;
 }
 
-/*The function checks if the block is NULL and if so returns without doing anything.*/
+// minnesfrigöring
 void mem_free(void* block) {
     if (block == NULL) return;
 
@@ -92,17 +105,18 @@ void mem_free(void* block) {
         return;
     }
 
-    // Markera blocket som ledigt
     current->free = 1;
 
-    // Minska total allokerad storlek
+    // Justera total allokerad storlek
     total_allocated -= current->size + sizeof(Block);
-    
-    // Merging med nästa block om det är ledigt
+    fprintf(stderr, "Freed block: size=%zu, total_allocated=%zu\n", current->size, total_allocated);
+
+    // Kolla om vi kan slå ihop med nästa block
     Block* next = current->next;
     if (next && next->free) {
         current->size += sizeof(Block) + next->size;
         current->next = next->next;
+        fprintf(stderr, "Merged with next block: new size=%zu\n", current->size);
     }
 }
 
