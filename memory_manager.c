@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdint.h>
 
-#define POOL_SIZE 1024  //Define a constant that specifies the size of the memory pool,in this case (2048 bytes)
+#define POOL_SIZE 1024  //Define a constant that specifies the size of the memory pool,in this case (1024 bytes)
 
 //a block of memory with size, status (free), and pointer to the next block in the memory pool
 typedef struct Block {
