@@ -19,6 +19,7 @@ typedef struct Node {
 
 static char memory_pool[POOL_SIZE];   //a static array of 2048 bytes
 static Block* free_list = NULL;      //a pointer to the first free block in the linked list of memory blocks
+static size_t total_allocated = 0;
 
 /*initializes memory management by allocating a block from the memory pool,
 if the requested size exceeds the size of the pool, an error message is printed and the function exits.*/
@@ -37,7 +38,9 @@ void mem_init(size_t size) {
 Splits the block if it is larger than the requested size. 
 Returns a pointer to the allocated block, or NULL if no large enough block exists.*/
 void* mem_alloc(size_t size) {
-    if (size == 0 || size + sizeof(Block) > POOL_SIZE) return NULL;
+    if (size == 0 || size + sizeof(Block) > POOL_SIZE - total_allocated) {
+        return NULL;
+    }
 
     Block* current = free_list;
 
@@ -55,11 +58,13 @@ void* mem_alloc(size_t size) {
             } else {
                 current->free = 0;
             }
+
+            total_allocated += size + sizeof(Block); 
             return (char*)current + sizeof(Block);
         }
         current = current->next;
     }
-    return NULL; 
+    return NULL;
 }
 
 /*The function checks if the block is NULL and if so returns without doing anything.*/
@@ -67,17 +72,20 @@ void mem_free(void* block) {
     if (block == NULL) return;
 
     Block* current = (Block*)((char*)block - sizeof(Block));
-    //Check if the block is already free; if so, print an error message
+
     if (current->free) {
-        fprintf(stderr, "Error: This block already free \n");
-        return; 
+        fprintf(stderr, "Error: This block is already free\n");
+        return;
     }
-    current->free = 1;   //mark the block as free
-    //Check if the subsequent block is also free, If it is free, merge it with the current block
+
+    current->free = 1;
+
+    total_allocated -= current->size + sizeof(Block); 
+
     Block* next = current->next;
     if (next && next->free) {
-        current->size += sizeof(Block) + next->size; 
-        current->next = next->next; 
+        current->size += sizeof(Block) + next->size;
+        current->next = next->next;
     }
 }
 
