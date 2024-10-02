@@ -44,7 +44,7 @@ void* mem_alloc(size_t size) {
     while (current) {
         if (current->free && current->size >= size) {
             if (current->size >= size + sizeof(Block) + 1) {
-                Block* new_block = (Block*)((char*)current + sizeof(Block) + size);
+                Block* new_block = (Block)((char)current + sizeof(Block) + size);
                 new_block->size = current->size - size - sizeof(Block);
                 new_block->free = 1;
                 new_block->next = current->next;
