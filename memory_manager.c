@@ -48,9 +48,6 @@ typedef struct Block {
     struct Block* next;
 } Block;
 
-static size_t total_allocated = 0;  // Spårar hur mycket minne som är allokerat
-static Block* free_list = NULL;     // Länkad lista för tillgängliga block
-
 // minnesallokering
 void* mem_alloc(size_t size) {
     // Kontrollera om vi kan allokera minne
