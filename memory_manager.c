@@ -42,32 +42,23 @@ void* mem_alloc(size_t size) {
     Block* current = free_list;
 
     while (current) {
-        // Hitta ett tillräckligt stort ledigt block
         if (current->free && current->size >= size) {
-            // Kontrollera om blocket är tillräckligt stort för att delas upp
-            if (current->size >= size + sizeof(Block) + MIN_BLOCK_SIZE) {
-                // Dela blocket och skapa ett nytt block efter det nuvarande
+            if (current->size >= size + sizeof(Block) + 1) {
                 Block* new_block = (Block*)((char*)current + sizeof(Block) + size);
                 new_block->size = current->size - size - sizeof(Block);
                 new_block->free = 1;
                 new_block->next = current->next;
 
-                // Uppdatera det aktuella blocket
                 current->size = size;
                 current->free = 0;
                 current->next = new_block;
             } else {
-                // Om blocket inte kan delas, markera det som upptaget
                 current->free = 0;
             }
-
-            // Returnera en pekare till det allokerade utrymmet efter blockets metadata
             return (char*)current + sizeof(Block);
         }
-        // Gå vidare till nästa block i listan
         current = current->next;
     }
-    // Om inget passande block hittades, returnera NULL
     return NULL; 
 }
 
