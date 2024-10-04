@@ -11,12 +11,6 @@ typedef struct Block {
     struct Block* next; 
 } Block;
 
-//a structure for storing 16-bit data in a linked list
-typedef struct Node {
-    uint16_t data;
-    struct Node* next;
-} Node;
-
 static char memory_pool[POOL_SIZE];   //a static array of 2048 bytes
 static Block* free_list = NULL;      //a pointer to the first free block in the linked list of memory blocks
 static size_t total_allocated = 0;
