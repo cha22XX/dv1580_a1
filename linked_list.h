@@ -2,6 +2,7 @@
 #define LINKED_LIST_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 typedef struct Node {
     uint16_t data;
