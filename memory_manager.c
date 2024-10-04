@@ -27,7 +27,8 @@ void mem_init(size_t size) {
 }
 
 void* mem_alloc(size_t size) {
-    if (size == 0) return NULL;
+    if (size == 0 || size + total_allocated > POOL_SIZE) return NULL;
+    //if (size == 0) return NULL;
 
     Block* current = free_list;
 
