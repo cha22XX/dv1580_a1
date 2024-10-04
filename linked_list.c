@@ -47,6 +47,60 @@ void list_insert_after(Node* prev_node, uint16_t data) {
 }
 
 void list_insert_before(Node** head, Node* next_node, uint16_t data) {
+    if (head == NULL || *head == NULL) {
+        printf("Error: Head or list is NULL.\n");
+        return;
+    }
+
+    if (next_node == NULL) {
+        printf("Error: Next node is NULL.\n");
+        return;
+    }
+
+    // Allocate memory for the new node
+    Node* new_node = (Node*)mem_alloc(sizeof(Node));
+    if (new_node == NULL) {
+        printf("Memory allocation failed!\n");
+        return;
+    }
+
+    new_node->data = data;
+    new_node->next = next_node;
+
+    // If the next_node is the head, we insert the new node before the head
+    if (*head == next_node) {
+        *head = new_node;
+    } else {
+        // Traverse the list to find the node before the next_node
+        Node* temp = *head;
+        Node* prev = NULL;  // Keep track of the previous node
+
+        while (temp != NULL && temp != next_node) {
+            prev = temp;
+            temp = temp->next;
+        }
+
+        // If next_node is not found, free memory and exit
+        if (temp == NULL) {
+            printf("Error: Next node not found in the list.\n");
+            mem_free(new_node);
+            return;
+        }
+
+        // Link the new node into the list
+        if (prev != NULL) {
+            prev->next = new_node;
+        } else {
+            // If prev is NULL, it means head == next_node, so we should never reach here
+            printf("Error: Inconsistent state, head mismatch.\n");
+            mem_free(new_node);
+            return;
+        }
+    }
+}
+
+/*
+void list_insert_before(Node** head, Node* next_node, uint16_t data) {
     if (next_node == NULL) {
         printf("Error: Next node is NULL.\n");
         return;
@@ -76,7 +130,7 @@ void list_insert_before(Node** head, Node* next_node, uint16_t data) {
 
         temp->next = new_node; 
     }
-}
+}*/
 
 void list_delete(Node** head, uint16_t data) {
     if (*head == NULL) {
