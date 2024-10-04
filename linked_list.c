@@ -47,60 +47,6 @@ void list_insert_after(Node* prev_node, uint16_t data) {
 }
 
 void list_insert_before(Node** head, Node* next_node, uint16_t data) {
-    if (head == NULL || *head == NULL) {
-        printf("Error: Head or list is NULL.\n");
-        return;
-    }
-
-    if (next_node == NULL) {
-        printf("Error: Next node is NULL.\n");
-        return;
-    }
-
-    // Allocate memory for the new node
-    Node* new_node = (Node*)mem_alloc(sizeof(Node));
-    if (new_node == NULL) {
-        printf("Memory allocation failed!\n");
-        return;
-    }
-
-    new_node->data = data;
-    new_node->next = next_node;
-
-    // If the next_node is the head, we insert the new node before the head
-    if (*head == next_node) {
-        *head = new_node;
-    } else {
-        // Traverse the list to find the node before the next_node
-        Node* temp = *head;
-        Node* prev = NULL;  // Keep track of the previous node
-
-        while (temp != NULL && temp != next_node) {
-            prev = temp;
-            temp = temp->next;
-        }
-
-        // If next_node is not found, free memory and exit
-        if (temp == NULL) {
-            printf("Error: Next node not found in the list.\n");
-            mem_free(new_node);
-            return;
-        }
-
-        // Link the new node into the list
-        if (prev != NULL) {
-            prev->next = new_node;
-        } else {
-            // If prev is NULL, it means head == next_node, so we should never reach here
-            printf("Error: Inconsistent state, head mismatch.\n");
-            mem_free(new_node);
-            return;
-        }
-    }
-}
-
-/*
-void list_insert_before(Node** head, Node* next_node, uint16_t data) {
     if (next_node == NULL) {
         printf("Error: Next node is NULL.\n");
         return;
@@ -130,7 +76,7 @@ void list_insert_before(Node** head, Node* next_node, uint16_t data) {
 
         temp->next = new_node; 
     }
-}*/
+}
 
 void list_delete(Node** head, uint16_t data) {
     if (*head == NULL) {
@@ -186,7 +132,7 @@ void list_display(Node** head) {
     printf("]\n");
 }
 
-/*
+
 void list_display_range(Node** head, Node* start_node, Node* end_node) {
     if (*head == NULL) {
         printf("List is empty.\n");
@@ -204,51 +150,6 @@ void list_display_range(Node** head, Node* start_node, Node* end_node) {
         temp = temp->next;
     }
 
-    if (end_node != NULL && temp == end_node) {
-        printf("%d", temp->data);
-    }
-
-    printf("]\n");
-}*/
-
-void list_display_range(Node** head, Node* start_node, Node* end_node) {
-    if (*head == NULL) {
-        printf("List is empty.\n");
-        return;
-    }
-
-    // Starta från head om start_node är NULL
-    Node* temp = (start_node == NULL) ? *head : start_node;
-
-    // Kontrollera att start_node är en del av listan
-    if (start_node != NULL) {
-        Node* check = *head;
-        while (check != NULL) {
-            if (check == start_node) {
-                break;
-            }
-            check = check->next;
-        }
-        if (check == NULL) {
-            printf("Error: start_node is not in the list.\n");
-            return;
-        }
-    }
-
-    printf("[");
-
-    // Loopa igenom listan
-    while (temp != NULL && temp != end_node) {
-        printf("%d", temp->data);
-        temp = temp->next;
-
-        // Skriv ut kommatecken mellan värdena
-        if (temp != NULL && temp != end_node) {
-            printf(", ");
-        }
-    }
-
-    // Om end_node inte är NULL och vi nått end_node, skriv ut dess data
     if (end_node != NULL && temp == end_node) {
         printf("%d", temp->data);
     }
