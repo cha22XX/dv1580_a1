@@ -13,7 +13,8 @@ typedef struct Block {
 
 static char memory_pool[POOL_SIZE];   //a static array of 2048 bytes
 static Block* free_list = NULL;      //a pointer to the first free block in the linked list of memory blocks
-static size_t total_allocated = 0;
+//static size_t total_allocated = 0;
+
 void mem_init(size_t size) {
     if (size > POOL_SIZE) {
         fprintf(stderr, "Error: Requested size bigger than memory pool size.\n");
