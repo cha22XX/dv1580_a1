@@ -6,8 +6,8 @@
 #include <stdint.h>
 #include <stddef.h>  
 
-#define POOL_SIZE 1024  
 
+#define POOL_SIZE 50000000 
 typedef struct Block {
     size_t size;        
     int free;          
