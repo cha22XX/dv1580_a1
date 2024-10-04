@@ -15,7 +15,8 @@ typedef struct Block {
 } Block;
 
 static char memory_pool[POOL_SIZE];   
-static Block* free_list = NULL;      
+static Block* free_list = NULL;
+static size_t total_allocated = 0;
 
 void mem_init(size_t size);
 void* mem_alloc(size_t size);
