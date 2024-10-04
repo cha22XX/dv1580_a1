@@ -14,7 +14,6 @@ typedef struct Block {
 static char memory_pool[POOL_SIZE];   //a static array of 2048 bytes
 static Block* free_list = NULL;      //a pointer to the first free block in the linked list of memory blocks
 static size_t total_allocated = 0;
-
 void mem_init(size_t size) {
     if (size > POOL_SIZE) {
         fprintf(stderr, "Error: Requested size bigger than memory pool size.\n");
@@ -22,7 +21,7 @@ void mem_init(size_t size) {
     }
 
     free_list = (Block*)memory_pool; 
-    free_list->size = size - sizeof(Block); // Subtract size of Block metadata
+    free_list->size = size ; 
     free_list->free = 1; 
     free_list->next = NULL;
 }
@@ -30,19 +29,13 @@ void mem_init(size_t size) {
 void* mem_alloc(size_t size) {
     if (size == 0) return NULL;
 
-    // Kontrollera om den totala allokeringen skulle överskrida POOL_SIZE
-    if (total_allocated + size + sizeof(Block) > POOL_SIZE) {
-        fprintf(stderr, "Error: Not enough memory available in pool.\n");
-        return NULL;
-    }
-
     Block* current = free_list;
 
     while (current) {
         if (current->free && current->size >= size) {
-            if (current->size >= size + sizeof(Block)) { 
-                Block* new_block = (Block*)((char*)current + sizeof(Block) + size);
-                new_block->size = current->size - size - sizeof(Block);
+            if (current->size >= size)  { 
+                Block* new_block = (Block*)((char*)current + size);
+                new_block->size = current->size - size ;
                 new_block->free = 1;
                 new_block->next = current->next;
 
@@ -52,32 +45,28 @@ void* mem_alloc(size_t size) {
             } else {
                 current->free = 0; 
             }
-
-            total_allocated += size + sizeof(Block);  // Uppdatera total allokering
-            return (char*)current + sizeof(Block); // Returnera pekaren efter Block metadata
+            return (char*)current; 
         }
         current = current->next;
     }
     return NULL; 
 }
+
 void mem_free(void* block) {
     if (block == NULL) return;
 
-    Block* current = (Block*)((char*)block - sizeof(Block));  // Justera pekaren för att komma åt Block-metadata
-
+    Block* current = (Block*)((char*)block);
+    
     if (current->free) {
-        fprintf(stderr, "Error: This block is already free.\n");
-        return;
+        fprintf(stderr, "Error: This block already free \n");
+        return; 
     }
-
-    current->free = 1;  
-    total_allocated -= current->size + sizeof(Block);  
-
-    // Sammanslå med nästa block om det är ledigt
+    current->free = 1; 
+    
     Block* next = current->next;
     if (next && next->free) {
-        current->size += next->size + sizeof(Block);  // Sammanslå storleken på blocken
-        current->next = next->next;  // Hoppa över nästa block
+        current->size += next->size; 
+        current->next = next->next; 
     }
 }
 
@@ -86,7 +75,7 @@ void* mem_resize(void* block, size_t size) {
         return mem_alloc(size); 
     }
     
-    Block* current = (Block*)((char*)block - sizeof(Block));
+    Block* current = (Block*)((char*)block);
     if (current->free) {
         fprintf(stderr, "Error: Can't resize a free block!\n");
         return NULL;
@@ -108,5 +97,4 @@ void* mem_resize(void* block, size_t size) {
 
 void mem_deinit(void) {
     free_list = NULL; 
-    total_allocated = 0;
 }
