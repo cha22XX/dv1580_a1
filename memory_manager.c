@@ -33,16 +33,16 @@ void mem_init(size_t size) {
     free_list->next = NULL;
 }
 
-void* mem_alloc(size_t size) {
+ void* mem_alloc(size_t size) {
     if (size == 0) return NULL;
 
     Block* current = free_list;
 
     while (current) {
-        if (current->free && current->size >= size) {
-            if (current->size >= size)  { 
-                Block* new_block = (Block*)((char*)current + size);
-                new_block->size = current->size - size ;
+        if (current->free && current->size >= size + sizeof(Block)) {  
+            if (current->size >= size + sizeof(Block)) { 
+                Block* new_block = (Block*)((char*)current + sizeof(Block) + size);
+                new_block->size = current->size - size - sizeof(Block);
                 new_block->free = 1;
                 new_block->next = current->next;
 
@@ -50,13 +50,15 @@ void* mem_alloc(size_t size) {
                 current->free = 0; 
                 current->next = new_block;
             } else {
-                current->free = 0; 
+                current->free = 0;  
             }
-            return (char*)current; 
+
+            return (void*)((char*)current + sizeof(Block));  
         }
         current = current->next;
     }
-    return NULL; 
+
+    return NULL;  
 }
 
 void mem_free(void* block) {
