@@ -186,6 +186,7 @@ void list_display(Node** head) {
     printf("]\n");
 }
 
+/*
 void list_display_range(Node** head, Node* start_node, Node* end_node) {
     if (*head == NULL) {
         printf("List is empty.\n");
@@ -203,6 +204,51 @@ void list_display_range(Node** head, Node* start_node, Node* end_node) {
         temp = temp->next;
     }
 
+    if (end_node != NULL && temp == end_node) {
+        printf("%d", temp->data);
+    }
+
+    printf("]\n");
+}*/
+
+void list_display_range(Node** head, Node* start_node, Node* end_node) {
+    if (*head == NULL) {
+        printf("List is empty.\n");
+        return;
+    }
+
+    // Starta från head om start_node är NULL
+    Node* temp = (start_node == NULL) ? *head : start_node;
+
+    // Kontrollera att start_node är en del av listan
+    if (start_node != NULL) {
+        Node* check = *head;
+        while (check != NULL) {
+            if (check == start_node) {
+                break;
+            }
+            check = check->next;
+        }
+        if (check == NULL) {
+            printf("Error: start_node is not in the list.\n");
+            return;
+        }
+    }
+
+    printf("[");
+
+    // Loopa igenom listan
+    while (temp != NULL && temp != end_node) {
+        printf("%d", temp->data);
+        temp = temp->next;
+
+        // Skriv ut kommatecken mellan värdena
+        if (temp != NULL && temp != end_node) {
+            printf(", ");
+        }
+    }
+
+    // Om end_node inte är NULL och vi nått end_node, skriv ut dess data
     if (end_node != NULL && temp == end_node) {
         printf("%d", temp->data);
     }
