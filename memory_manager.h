@@ -14,11 +14,6 @@ typedef struct Block {
     struct Block* next; 
 } Block;
 
-typedef struct Node {
-    uint16_t data;
-    struct Node* next;
-} Node;
-
 static char memory_pool[POOL_SIZE];   
 static Block* free_list = NULL;      
 
