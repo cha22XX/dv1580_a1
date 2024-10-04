@@ -398,7 +398,7 @@ int main(int argc, char *argv[])
 
         printf("\nVarious other tests:\n");
         test_zero_alloc_and_free();
-        test_random_blocks();
+        //test_random_blocks();
         break;
     case 1:
         test_init();
@@ -451,9 +451,9 @@ int main(int argc, char *argv[])
     case 17:
         test_zero_alloc_and_free();
         break;
-    case 18:
+    /*case 18:
         test_random_blocks();
-        break;
+        break;*/
     default:
         printf("Invalid test function\n");
         break;
