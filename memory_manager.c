@@ -22,7 +22,7 @@ void mem_init(size_t size) {
     }
 
     free_list = (Block*)memory_pool; 
-    free_list->size = size ; 
+    free_list->size = size - sizeof(Block); // Subtract size of Block metadata
     free_list->free = 1; 
     free_list->next = NULL;
 }
@@ -34,9 +34,10 @@ void* mem_alloc(size_t size) {
 
     while (current) {
         if (current->free && current->size >= size) {
-            if (current->size >= size)  { 
-                Block* new_block = (Block*)((char*)current + size);
-                new_block->size = current->size - size ;
+            // Only split the block if there is enough space for a new block's metadata
+            if (current->size >= size + sizeof(Block)) { 
+                Block* new_block = (Block*)((char*)current + sizeof(Block) + size);
+                new_block->size = current->size - size - sizeof(Block);
                 new_block->free = 1;
                 new_block->next = current->next;
 
@@ -46,7 +47,7 @@ void* mem_alloc(size_t size) {
             } else {
                 current->free = 0; 
             }
-            return (char*)current; 
+            return (char*)current + sizeof(Block); // Return pointer after the Block metadata
         }
         current = current->next;
     }
@@ -56,8 +57,7 @@ void* mem_alloc(size_t size) {
 void mem_free(void* block) {
     if (block == NULL) return;
 
-    Block* current = (Block*)((char*)block);
-    
+    Block* current = (Block*)((char*)block - sizeof(Block)); // Adjust pointer back to block
     if (current->free) {
         fprintf(stderr, "Error: This block already free \n");
         return; 
@@ -66,7 +66,7 @@ void mem_free(void* block) {
     
     Block* next = current->next;
     if (next && next->free) {
-        current->size += next->size; 
+        current->size += sizeof(Block) + next->size; // Merge with next block
         current->next = next->next; 
     }
 }
@@ -76,7 +76,7 @@ void* mem_resize(void* block, size_t size) {
         return mem_alloc(size); 
     }
     
-    Block* current = (Block*)((char*)block);
+    Block* current = (Block*)((char*)block - sizeof(Block));
     if (current->free) {
         fprintf(stderr, "Error: Can't resize a free block!\n");
         return NULL;
@@ -98,4 +98,5 @@ void* mem_resize(void* block, size_t size) {
 
 void mem_deinit(void) {
     free_list = NULL; 
+    total_allocated = 0;
 }
