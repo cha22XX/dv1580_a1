@@ -30,11 +30,16 @@ void mem_init(size_t size) {
 void* mem_alloc(size_t size) {
     if (size == 0) return NULL;
 
+    // Kontrollera om den totala allokeringen skulle överskrida POOL_SIZE
+    if (total_allocated + size + sizeof(Block) > POOL_SIZE) {
+        fprintf(stderr, "Error: Not enough memory available in pool.\n");
+        return NULL;
+    }
+
     Block* current = free_list;
 
     while (current) {
         if (current->free && current->size >= size) {
-            // Only split the block if there is enough space for a new block's metadata
             if (current->size >= size + sizeof(Block)) { 
                 Block* new_block = (Block*)((char*)current + sizeof(Block) + size);
                 new_block->size = current->size - size - sizeof(Block);
@@ -47,27 +52,32 @@ void* mem_alloc(size_t size) {
             } else {
                 current->free = 0; 
             }
-            return (char*)current + sizeof(Block); // Return pointer after the Block metadata
+
+            total_allocated += size + sizeof(Block);  // Uppdatera total allokering
+            return (char*)current + sizeof(Block); // Returnera pekaren efter Block metadata
         }
         current = current->next;
     }
     return NULL; 
 }
-
 void mem_free(void* block) {
     if (block == NULL) return;
 
-    Block* current = (Block*)((char*)block - sizeof(Block)); // Adjust pointer back to block
+    Block* current = (Block*)((char*)block - sizeof(Block));  // Justera pekaren för att komma åt Block-metadata
+
     if (current->free) {
-        fprintf(stderr, "Error: This block already free \n");
-        return; 
+        fprintf(stderr, "Error: This block is already free.\n");
+        return;
     }
-    current->free = 1; 
-    
+
+    current->free = 1;  
+    total_allocated -= current->size + sizeof(Block);  
+
+    // Sammanslå med nästa block om det är ledigt
     Block* next = current->next;
     if (next && next->free) {
-        current->size += sizeof(Block) + next->size; // Merge with next block
-        current->next = next->next; 
+        current->size += next->size + sizeof(Block);  // Sammanslå storleken på blocken
+        current->next = next->next;  // Hoppa över nästa block
     }
 }
 
