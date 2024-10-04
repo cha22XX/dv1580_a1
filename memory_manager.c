@@ -1,19 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include "memory_manager.h"
 
-#define POOL_SIZE 1024  //Define a constant that specifies the size of the memory pool,in this case (1024 bytes)
-
-//a block of memory with size, status (free), and pointer to the next block in the memory pool
-typedef struct Block {
-    size_t size;        
-    int free;          
-    struct Block* next; 
-} Block;
-
-static char memory_pool[POOL_SIZE];   //a static array of 2048 bytes
-static Block* free_list = NULL;      //a pointer to the first free block in the linked list of memory blocks
-static size_t total_allocated = 0;
 
 void mem_init(size_t size) {
     if (size > POOL_SIZE) {
@@ -26,9 +15,9 @@ void mem_init(size_t size) {
     free_list->free = 1; 
     free_list->next = NULL;
 }
-
+ 
 void* mem_alloc(size_t size) {
-    if (size == 0) return NULL;
+    if (size == 0) return (void*)free_list;;
 
     Block* current = free_list;
 
@@ -53,13 +42,14 @@ void* mem_alloc(size_t size) {
     return NULL; 
 }
 
+
 void mem_free(void* block) {
     if (block == NULL) return;
 
     Block* current = (Block*)((char*)block);
     
     if (current->free) {
-        fprintf(stderr, "Error: This block already free \n");
+        //fprintf(stderr, "Error: This block already free \n");
         return; 
     }
     current->free = 1; 
