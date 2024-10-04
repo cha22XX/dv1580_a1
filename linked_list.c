@@ -3,21 +3,25 @@
 #include "linked_list.h" 
 #include "memory_manager.h"
 
+// Function to initialize the list, setting the head to NULL and initializing memory management.
 void list_init(Node** head,size_t size) {
-    *head = NULL;
+    *head = NULL;  // Set the head to NULL, indicating the list is empty.
     mem_init(size); 
 }
 
+// Function to insert a new value at the end of the list.
 void list_insert(Node** head, uint16_t data) {
+   // Allocate memory for a new node.
     Node* new_node = (Node*)mem_alloc(sizeof(Node));
-    if (new_node == NULL) {
+    if (new_node == NULL) {  // Check if memory allocation was successful, If allocation failed, exit the function.
         printf("Memory allocation failed!\n");
         return;
     }
 
-    new_node->data = data;
-    new_node->next = NULL;
+    new_node->data = data;   // Set the node's data.
+    new_node->next = NULL;   // Set the next pointer to NULL.
 
+   // If the list is empty, set the new node as the head.
     if (*head == NULL) {
         *head = new_node;
     } else {
@@ -29,21 +33,22 @@ void list_insert(Node** head, uint16_t data) {
     }
 }
 
+// Function to insert a node after a given node.
 void list_insert_after(Node* prev_node, uint16_t data) {
-    if (prev_node == NULL) {
+    if (prev_node == NULL) { // Check if the previous node is NULL, If it is NULL, exit the function.
         printf("Error: Previous node is NULL.\n");
         return;
     }
 
-    Node* new_node = (Node*)mem_alloc(sizeof(Node));
+    Node* new_node = (Node*)mem_alloc(sizeof(Node));  // Allocate memory for the new node.
     if (new_node == NULL) {
         printf("Memory allocation failed!\n");
         return;
     }
 
-    new_node->data = data;
-    new_node->next = prev_node->next;
-    prev_node->next = new_node;
+    new_node->data = data;  // Set the node's data.
+    new_node->next = prev_node->next;  // Link the new node's next to the previous node's next.
+    prev_node->next = new_node;   // Link the previous node's next to the new node.
 }
 
 void list_insert_before(Node** head, Node* next_node, uint16_t data) {
