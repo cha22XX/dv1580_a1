@@ -1,4 +1,4 @@
-#include <stdio.h>
+/*#include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include "memory_manager.h"
@@ -98,6 +98,95 @@ void* mem_resize(void* block, size_t size) {
     memcpy(new_block, block, current->size);
     mem_free(block); // Free the old block.
     return new_block; // Return the pointer to the newly allocated block.
+}*/
+
+#include "memory_manager.h"
+
+void mem_init(size_t size) {
+    if (size > POOL_SIZE) {
+        fprintf(stderr, "Error: Requested size bigger than memory pool size.\n");
+        return;
+    }
+
+    num_blocks = 1;  
+    block_list[0].size = size;
+    block_list[0].free = 1; 
+}
+
+void* mem_alloc(size_t size) {
+    if (size == 0) return (void*)memory_pool;
+
+    for (size_t i = 0; i < num_blocks; ++i) {
+        if (block_list[i].free && block_list[i].size >= size) {
+            if (block_list[i].size >= size && num_blocks < MAX_BLOCKS) {
+                for (size_t j = num_blocks; j > i + 1; --j) {
+                    block_list[j] = block_list[j - 1];  
+                }
+                num_blocks++;
+
+                block_list[i + 1].size = block_list[i].size - size;
+                block_list[i + 1].free = 1;
+
+                block_list[i].size = size;
+            }
+
+            block_list[i].free = 0;
+            return (void*)(memory_pool + i );  
+        }
+    }
+
+    return NULL;  
+}
+
+void mem_free(void* block) {
+    if (block == NULL) return;
+    
+    size_t index = ((char*)block - memory_pool);
+    if (index >= num_blocks  block_list[index].free) {
+        
+        return;
+    }
+
+    block_list[index].free = 1;
+
+    if (index + 1 < num_blocks && block_list[index + 1].free) {
+        block_list[index].size += block_list[index + 1].size ;
+        for (size_t j = index + 1; j < num_blocks - 1; ++j) {
+            block_list[j] = block_list[j + 1];  
+        }
+        num_blocks--;
+    }
+}
+
+void* mem_resize(void* block, size_t size) {
+    if (block == NULL) {
+        return mem_alloc(size); 
+    }
+
+    size_t index = ((char*)block - memory_pool) / sizeof(Block);
+    if (index >= num_blocks  block_list[index].free) {
+        fprintf(stderr, "Error: Can't resize a free or invalid block!\n");
+        return NULL;
+    }
+
+    Block* current = &block_list[index]; 
+    if (size <= current->size) {
+        return block;
+    }
+
+    void* new_block = mem_alloc(size);
+    if (new_block == NULL) {
+        return NULL; 
+    }
+
+    memcpy(new_block, block, current->size);
+    mem_free(block);
+
+    return new_block;
+}
+
+void mem_deinit(void) {
+    num_blocks = 0;
 }
 
 // Function to deinitialize the memory manager and reset the free list.
