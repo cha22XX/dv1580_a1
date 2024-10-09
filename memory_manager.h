@@ -1,4 +1,4 @@
-#ifndef MEMORY_MANAGER_H  
+/*#ifndef MEMORY_MANAGER_H  
 #define MEMORY_MANAGER_H  
 
 #include <stdio.h>
@@ -24,4 +24,6 @@ void mem_free(void* block);
 void* mem_resize(void* block, size_t new_size);
 void mem_deinit(void);
 
-#endif // MEMORY_MANAGER_H
+#endif // MEMORY_MANAGER_H*/
+
+
