@@ -1,4 +1,4 @@
-# Compiler and Linking Variables
+# Compiler and Linking Variables  ##
 CC = gcc
 CFLAGS = -Wall -fPIC
 LIB_NAME = libmemory_manager.so
