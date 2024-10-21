@@ -10,10 +10,10 @@
 #include <string.h>
 
 
-// 
+// Structure representing a node in the linked list
 typedef struct Node {
-    uint16_t data;
-    struct Node* next;
+    uint16_t data;  // Data stored in the node (16-bit integer)
+    struct Node* next;  // Pointer to the next node in the list
 } Node;
 
 void list_init(Node** head, size_t size);               
