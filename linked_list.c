@@ -1,45 +1,48 @@
-#include "linked_list.h" 
+#include "linked_list.h"  // Includes the header file that defines the structure and functions of the linked list
 #include "memory_manager.h"
 
 
 
 
 void list_init(Node** head, size_t size) {
-    mem_init(size);
-    *head = NULL;
+    mem_init(size); // Initializes the memory manager with the specified size
+    *head = NULL;  // Sets the list's head to NULL (empty list)
 }
 
 // 
 void list_insert(Node** head, uint16_t data) {
-    Node* new_node = (Node*)mem_alloc(sizeof(Node));
+    Node* new_node = (Node*)mem_alloc(sizeof(Node)); // Allocates memory for a new node
     if (new_node == NULL) {
+        // Checks if the memory allocation failed, Prints an error message
         printf("Memory allocation failed.\n");
-        return;
+        return;  // end the function if the allocation failed
     }
-    new_node->data = data;
-    new_node->next = NULL;
+    new_node->data = data;  // Sets the data value for the new node
+    new_node->next = NULL; // Initially, the next node points to NULL
 
+    // Checks if the list is empty
     if (*head == NULL) {
-        *head = new_node; //
+        *head = new_node; // Sets the new node as the head of the list
     } else {
         Node* temp = *head;
         while (temp->next != NULL) {
-            temp = temp->next; // 
+            temp = temp->next; 
         }
-        temp->next = new_node;
+        temp->next = new_node; // Adds the new node to the end of the list
     }
 }
 
 // 
 void list_insert_after(Node* prev_node, uint16_t data) {
     if (prev_node == NULL) {
+        // Checks if the previous node is NULL, Prints an error message
         printf("Previous node cannot be NULL.\n");
         return;
     }
-
+    // Allocates memory for the new node
     Node* new_node = (Node*)mem_alloc(sizeof(Node));
-    if (new_node == NULL) {
-        printf("Memory allocation failed.\n");
+    if (new_node == NULL) {  // Checks if the memory allocation failed, Prints an error message
+        printf("Memory allocation failed.\n"); 
         return;
     }
     new_node->data = data;
@@ -47,24 +50,24 @@ void list_insert_after(Node* prev_node, uint16_t data) {
     prev_node->next = new_node;
 }
 
-// 
+
 void list_insert_before(Node** head, Node* next_node, uint16_t data) {
-    if (*head == NULL || next_node == NULL) {
+    if (*head == NULL || next_node == NULL) { 
+        // Checks if the list is empty or if the next node is NULL, Prints an error message
         printf("Cannot insert before NULL node.\n");
         return;
     }
 
-    Node* new_node = (Node*)mem_alloc(sizeof(Node));
-    if (new_node == NULL) {
+    Node* new_node = (Node*)mem_alloc(sizeof(Node));  // Allocates memory for the new node
+    if (new_node == NULL) {  // Checks if the memory allocation failed, Prints an error message
         printf("Memory allocation failed.\n");
         return;
     }
     new_node->data = data;
 
-    if (*head == next_node) {
-        // 
-        new_node->next = *head;
-        *head = new_node;
+    if (*head == next_node) { // Checks if the next node is the head of the list
+        new_node->next = *head;  // Links the new node's next to the head of the list
+        *head = new_node;   // Sets the new node as the head of the list
     } else {
         Node* temp = *head;
         while (temp != NULL && temp->next != next_node) {
@@ -75,7 +78,7 @@ void list_insert_before(Node** head, Node* next_node, uint16_t data) {
             mem_free(new_node);
             return;
         }
-        new_node->next = temp->next;
+        new_node->next = temp->next;  // Links the new node's next to next_node
         temp->next = new_node;
     }
 }
