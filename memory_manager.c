@@ -75,54 +75,51 @@ void mem_free(void* block) {
             }
             return;
         }
-        current = current->next;
+        current = current->next;  // Go to the next block
     }
-
-    printf("Block not found.\n");
+    printf("Block not found.\n"); // If the block is not found, print an error message
 }
 
-//
+// Function to resize an allocated block
 void* mem_resize(void* block, size_t size) {
     Block* current = head_pool;
 
-    // 
+    // Loop through the blocks to find the one corresponding to the given address
     while (current != NULL) {
         if (current->address == block) {
+            // If the current block is already large enough, return the same block
             if (current->size >= size) {
-                
                 return block;
             }
-
-            // 
+            // Otherwise, allocate a new block of the desired size
             void* new_block = mem_alloc(size);
             if (new_block == NULL) {
-                return NULL;
+                return NULL; // If the allocation fails, return NULL
             }
 
-            // 
+            // Copy the data from the old block to the new one
             memcpy(new_block, block, current->size);
-            mem_free(block);
-            return new_block;
+            mem_free(block);  // Free the old block
+            return new_block;  // Return the address of the new block
         }
-        current = current->next;
+        current = current->next;  // Go to the next block
     }
-
-    printf("Block not found for resizing.\n");
+    printf("Block not found for resizing.\n");  // If the block is not found, print an error message
     return NULL;
 }
 
-// 
+// Function to uninitialize the memory manager
 void mem_deinit() {
     free(memory_pool); // 
     memory_pool = NULL;
 
-    // 
+    // Free all blocks in the linked list
     Block* current = head_pool;
     while (current != NULL) {
-        Block* temp = current;
-        current = current->next;
-        free(temp);
+        Block* temp = current; // Temporary pointer to hold the block to be freed
+        current = current->next; 
+        free(temp); // Free current block
     }
-    head_pool = NULL;
+    head_pool = NULL;  // Reset head_pool when all blocks are freed
 }
 
