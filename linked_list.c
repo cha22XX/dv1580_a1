@@ -83,26 +83,26 @@ void list_insert_before(Node** head, Node* next_node, uint16_t data) {
     }
 }
 
-// 
+// Removes a node with a specific data value
 void list_delete(Node** head, uint16_t data) {
     if (*head == NULL) {
-        printf("List is empty.\n");
+        printf("List is empty.\n"); // Check if the list is empty
         return;
     }
 
-    Node* temp = *head;
-    Node* prev = NULL;
+    Node* temp = *head;  // Temporary pointer to traverse the list
+    Node* prev = NULL; // Pointer to keep track of the previous node
 
     if (temp != NULL && temp->data == data) {
-        // 
+        // Om noden som ska tas bort är huvudnoden, Sätt listans huvud till nästa nod
         *head = temp->next;
-        mem_free(temp);
+        mem_free(temp);  // Free the memory for the removed node
         return;
     }
 
     while (temp != NULL && temp->data != data) {
-        prev = temp;
-        temp = temp->next;
+        prev = temp; // Update the previous node
+        temp = temp->next; // Go to the next node
     }
 
     if (temp == NULL) {
