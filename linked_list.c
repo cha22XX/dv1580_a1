@@ -105,73 +105,72 @@ void list_delete(Node** head, uint16_t data) {
         temp = temp->next; // Go to the next node
     }
 
-    if (temp == NULL) {
+    if (temp == NULL) { // Check if the data value was found
         printf("Data not found in the list.\n");
-        return;
+        return; // Exit the function if the data value was not found
     }
 
-    prev->next = temp->next;
-    mem_free(temp);
-}
+    prev->next = temp->next;  // Switch the previous node's next pointer
+    mem_free(temp);  // Free the memory for the removed node
+}  
 
-// 
+// Search for a node with a specific data value
 Node* list_search(Node** head, uint16_t data) {
     Node* temp = *head;
     while (temp != NULL) {
         if (temp->data == data) {
-            return temp;
+            return temp; // Return the node if the data value is found
         }
-        temp = temp->next;
+        temp = temp->next;  // Go to the next node
     }
-    return NULL;
+    return NULL;  // Return NULL if the data value was not found
 }
 
-// 
+// Count the number of nodes in the list
 int list_count_nodes(Node** head) {
     int count = 0;
     Node* temp = *head;
     while (temp != NULL) {
-        count++;
-        temp = temp->next;
+        count++; // Increment the counter
+        temp = temp->next; // Go to the next node
     }
-    return count;
+    return count;  // Return the number of nodes
 }
 
-// 
+// Clear the entire list and free the memory
 void list_cleanup(Node** head) {
     Node* temp = *head;
     while (temp != NULL) {
-        Node* next = temp->next;
-        mem_free(temp);
-        temp = next;
+        Node* next = temp->next;  //Save the pointer to the next node
+        mem_free(temp);  // Free the memory for the current node
+        temp = next;  // Go to the next node
     }
-    *head = NULL;
+    *head = NULL;  // Set the list's head to NULL to indicate that the list is empty
 }
 
-
-
-
+// Display the entire list
 void list_display(Node** head) {
     Node* temp = *head;
 
     if (temp == NULL) {
-        printf("[]"); // 
+        printf("[]"); 
         return;
     }
 
     printf("[");
     while (temp != NULL) {
-        printf("%d", temp->data); // 
+        printf("%d", temp->data); 
         temp = temp->next;
         if (temp != NULL) {
-            printf(", "); // 
+            printf(", "); 
         }
     }
-    printf("]"); // 
+    printf("]"); 
 }
 
+// Display nodes within a certain range
 void list_display_range(Node** head, Node* start_node, Node* end_node) {
-    Node* temp = (start_node != NULL) ? start_node : *head;
+    Node* temp = (start_node != NULL) ? start_node : *head; // If start node is NULL, start from the head of the list
 
     if (temp == NULL) {
         printf("[]");
