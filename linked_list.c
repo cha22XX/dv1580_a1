@@ -149,7 +149,7 @@ void list_display(Node** head) {
         return;
     }
 
-    printf("[");
+    printf("[");  // Skriv ut den öppna hakparentesen.
     while (temp != NULL) {
         printf("%d", temp->data);  // Skriv ut datavärdet för varje nod.
         temp = temp->next;
