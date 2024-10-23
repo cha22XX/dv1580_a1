@@ -108,7 +108,7 @@ void list_delete(Node** head, uint16_t data) {
 
 // Funktion för att söka efter en nod med ett specifikt datavärde.
 Node* list_search(Node** head, uint16_t data) {
-    Node* temp = *head;
+    Node* temp = *head;  // Temporär pekare
     while (temp != NULL) {
         if (temp->data == data) {
             return temp; // Returnerar noden om datavärdet hittas.
