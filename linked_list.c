@@ -1,4 +1,200 @@
-#include "linked_list.h"  // Includes the header file that defines the structure and functions of the linked list
+#include "linked_list.h"   // Inkludera header-filen för länkad lista
+#include "memory_manager.h" // Inkludera minneshanteringssystemet
+
+// Initierar den länkade listan
+void list_init(Node** head, size_t size) {
+    *head = NULL; // Sätt listans huvud till NULL, vilket innebär att listan är tom
+}
+
+// Infogar en ny nod i slutet av listan
+void list_insert(Node** head, uint16_t data) {
+    Node* new_node = (Node*)mem_alloc(sizeof(Node)); // Allokera minne för en ny nod
+    if (new_node == NULL) {
+        printf("Memory allocation failed.\n"); // Kontrollera om minnesallokering misslyckades
+        return; // Avsluta funktionen om allokeringen misslyckades
+    }
+    new_node->data = data; // Tilldela data till den nya noden
+    new_node->next = NULL; // Sätt nästa pekare till NULL
+
+    if (*head == NULL) {
+        *head = new_node; // Om listan är tom, gör den nya noden till huvud
+    } else {
+        Node* temp = *head; // Temporär pekare för att traversera listan
+        while (temp->next != NULL) {
+            temp = temp->next; // Gå till slutet av listan
+        }
+        temp->next = new_node; // Koppla den nya noden till slutet av listan
+    }
+}
+
+// Infogar en ny nod efter en given nod
+void list_insert_after(Node* prev_node, uint16_t data) {
+    if (prev_node == NULL) {
+        printf("Previous node cannot be NULL.\n"); // Kontrollera att den föregående noden inte är NULL
+        return; // Avsluta om den föregående noden är NULL
+    }
+
+    Node* new_node = (Node*)mem_alloc(sizeof(Node)); // Allokera minne för en ny nod
+    if (new_node == NULL) {
+        printf("Memory allocation failed.\n"); // Kontrollera om allokeringen misslyckades
+        return; // Avsluta funktionen om allokeringen misslyckades
+    }
+    new_node->data = data; // Tilldela data till den nya noden
+    new_node->next = prev_node->next; // Koppla den nya nodens nästa pekare
+    prev_node->next = new_node; // Koppla den nya noden efter den föregående noden
+}
+
+// Infogar en ny nod före en given nod
+void list_insert_before(Node** head, Node* next_node, uint16_t data) {
+    if (*head == NULL || next_node == NULL) {
+        printf("Cannot insert before NULL node.\n"); // Kontrollera att listan och nästa nod inte är NULL
+        return; // Avsluta om någon av dem är NULL
+    }
+
+    Node* new_node = (Node*)mem_alloc(sizeof(Node)); // Allokera minne för en ny nod
+    if (new_node == NULL) {
+        printf("Memory allocation failed.\n"); // Kontrollera om allokeringen misslyckades
+        return; // Avsluta funktionen om allokeringen misslyckades
+    }
+    new_node->data = data; // Tilldela data till den nya noden
+
+    if (*head == next_node) {
+        // Om nästa nod är huvud, sätt den nya noden till huvud
+        new_node->next = *head;
+        *head = new_node;
+    } else {
+        Node* temp = *head; // Temporär pekare för att traversera listan
+        while (temp != NULL && temp->next != next_node) {
+            temp = temp->next; // Gå till noden innan nästa nod
+        }
+        if (temp == NULL) {
+            printf("Node not found in the list.\n"); // Kontrollera om noden hittades
+            mem_free(new_node); // Frigör minnet för den nya noden
+            return; // Avsluta funktionen om noden inte hittades
+        }
+        new_node->next = temp->next; // Koppla nästa pekare till den nya noden
+        temp->next = new_node; // Koppla den nya noden
+    }
+}
+
+// Tar bort en nod med ett specifikt datavärde
+void list_delete(Node** head, uint16_t data) {
+    if (*head == NULL) {
+        printf("List is empty.\n"); // Kontrollera om listan är tom
+        return; // Avsluta om listan är tom
+    }
+
+    Node* temp = *head; // Temporär pekare för att traversera listan
+    Node* prev = NULL;  // Pekare för att hålla reda på den föregående noden
+
+    if (temp != NULL && temp->data == data) {
+        // Om noden som ska tas bort är huvudnoden
+        *head = temp->next; // Sätt listans huvud till nästa nod
+        mem_free(temp);      // Frigör minnet för den borttagna noden
+        return; // Avsluta funktionen
+    }
+
+    while (temp != NULL && temp->data != data) {
+        prev = temp; // Uppdatera den föregående noden
+        temp = temp->next; // Gå till nästa nod
+    }
+
+    if (temp == NULL) {
+        printf("Data not found in the list.\n"); // Kontrollera om datavärdet hittades
+        return; // Avsluta funktionen om datavärdet inte hittades
+    }
+
+    prev->next = temp->next; // Koppla om den föregående nodens nästa pekare
+    mem_free(temp); // Frigör minnet för den borttagna noden
+}
+
+// Sök efter en nod med ett specifikt datavärde
+Node* list_search(Node** head, uint16_t data) {
+    Node* temp = *head; // Temporär pekare för att traversera listan
+    while (temp != NULL) {
+        if (temp->data == data) {
+            return temp; // Returnera noden om datavärdet hittas
+        }
+        temp = temp->next; // Gå till nästa nod
+    }
+    return NULL; // Returnera NULL om datavärdet inte hittades
+}
+
+// Räkna antalet noder i listan
+int list_count_nodes(Node** head) {
+    int count = 0; // Variabel för att räkna noder
+    Node* temp = *head; // Temporär pekare för att traversera listan
+    while (temp != NULL) {
+        count++; // Öka räknaren
+        temp = temp->next; // Gå till nästa nod
+    }
+    return count; // Returnera antalet noder
+}
+
+// Rensa hela listan och frigör minnet
+void list_cleanup(Node** head) {
+    Node* temp = *head; // Temporär pekare för att traversera listan
+    while (temp != NULL) {
+        Node* next = temp->next; // Spara pekaren till nästa nod
+        mem_free(temp); // Frigör minnet för den aktuella noden
+        temp = next; // Gå till nästa nod
+    }
+    *head = NULL; // Sätt listans huvud till NULL för att indikera att listan är tom
+}
+
+// Visa hela listan
+void list_display(Node** head) {
+    Node* temp = *head; // Temporär pekare för att traversera listan
+
+    if (temp == NULL) {
+        printf("[]"); // Om listan är tom, skriv ut tomt array
+        return; // Avsluta funktionen
+    }
+
+    printf("["); // Skriv ut öppnande hakparentes
+    while (temp != NULL) {
+        printf("%d", temp->data); // Skriv ut datavärdet för den aktuella noden
+        temp = temp->next; // Gå till nästa nod
+        if (temp != NULL) {
+            printf(", "); // Skriv ut ett kommatecken om det finns fler noder
+        }
+    }
+    printf("]"); // Skriv ut stängande hakparentes
+}
+
+// Visa noder inom ett visst intervall
+void list_display_range(Node** head, Node* start_node, Node* end_node) {
+    Node* temp = (start_node != NULL) ? start_node : *head; // Om startnod är NULL, börja från listans huvud
+
+    if (temp == NULL) {
+        printf("[]"); // Om listan är tom, skriv ut tomt array
+        return; // Avsluta funktionen
+    }
+
+    printf("["); // Skriv ut öppnande hakparentes
+    while (temp != NULL && (end_node == NULL || temp != end_node->next)) {
+        printf("%d", temp->data); // Skriv ut datavärdet för den aktuella noden
+        temp = temp->next; // Gå till nästa nod
+        if (temp != NULL && (end_node == NULL || temp != end_node->next)) {
+            printf(", "); // Skriv ut ett kommatecken om det finns fler noder och inte har nått slutet
+        }
+    }
+    printf("]"); // Skriv ut stängande hakparentes
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*#include "linked_list.h"  // Includes the header file that defines the structure and functions of the linked list
 #include "memory_manager.h"
 
 
@@ -186,4 +382,4 @@ void list_display_range(Node** head, Node* start_node, Node* end_node) {
         }
     }
     printf("]");
-}
+}*/
